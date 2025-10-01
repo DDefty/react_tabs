@@ -1,4 +1,3 @@
-import React from 'react';
 
 type Tab = {
   id: string;
@@ -9,28 +8,35 @@ type Tab = {
 type TabsProps = {
   tabs: Tab[];
   selectedTabId: string;
-  onChange: (tabId: string) => void;
+  onTabSelected: (tab: Tab) => void;
 };
 
-export const Tabs = ({ tabs, selectedTabId, onChange }: TabsProps) => {
+export const Tabs = ({ tabs, selectedTabId, onTabSelected }: TabsProps) => {
   const getTab = (tabId: string): Tab | undefined => {
     return tabs.find(tab => tab.id === tabId);
   };
+
+  const selected = getTab(selectedTabId) ?? tabs[0];
 
   return (
     <div data-cy="TabsComponent">
       <div className="tabs is-boxed">
         <ul>
-          {tabs.map((tab, index) => (
+          {tabs.map(tab => (
             <li
-              key={index}
-              className={tab.id === selectedTabId ? 'is-active' : ''}
+              key={tab.id}
+              className={tab.id === selected.id ? 'is-active' : ''}
               data-cy="Tab"
             >
               <a
                 href={`#${tab.id}`}
                 data-cy="TabLink"
-                onClick={() => onChange(tab.id)}
+                onClick={e => {
+                  e.preventDefault();
+                  if (tab.id !== selectedTabId) {
+                    onTabSelected(tab);
+                  }
+                }}
               >
                 {tab.title}
               </a>
@@ -40,7 +46,7 @@ export const Tabs = ({ tabs, selectedTabId, onChange }: TabsProps) => {
       </div>
 
       <div className="block" data-cy="TabContent">
-        {getTab(selectedTabId)?.content}
+        {selected.content}
       </div>
     </div>
   );
